@@ -68,25 +68,32 @@ cardioModel <- function(x, ID = "ID", NTAFD = "NTAFD", TOD = "TOD", RESPONSE = "
 
   # assign classes
   myData  <- myPremodeling(myData)
-
-  # no BOV
-  results10 <- myModeling10(myData, AIC.k)
-  results11 <- myModeling11(myData, AIC.k)
-  results12 <- myModeling12(myData, AIC.k)
-  results13 <- myModeling13(myData, AIC.k)
-
-  if("PERIOD" %in% colnames(myData)){
-    # with BOV
-    results14 <- myModeling14(myData, AIC.k)
-    results15 <- myModeling15(myData, AIC.k)
-    results16 <- myModeling16(myData, AIC.k)
-    results17 <- myModeling17(myData, AIC.k)
-    out <- mySummary(results=list(results10, results11, results12, results13,
-                                  results14, results15, results16, results17))
-  } else {
-    out <- mySummary(results=list(results10, results11, results12, results13))
-  }
-
+  
+  # workaround for bug in nlme
+  extra_e = environment()
+  with(extra_e, {
+  
+    # no BOV
+    results10 <- myModeling10(myData, AIC.k)
+    results11 <- myModeling11(myData, AIC.k)
+    results12 <- myModeling12(myData, AIC.k)
+    results13 <- myModeling13(myData, AIC.k)
+    
+    if("PERIOD" %in% colnames(myData)){
+      # with BOV
+      results14 <- myModeling14(myData, AIC.k)
+      results15 <- myModeling15(myData, AIC.k)
+      results16 <- myModeling16(myData, AIC.k)
+      results17 <- myModeling17(myData, AIC.k)
+      out <- mySummary(results=list(results10, results11, results12, results13,
+                                    results14, results15, results16, results17))
+    } else {
+      out <- mySummary(results=list(results10, results11, results12, results13))
+    }
+    
+  # workaround for bug in nlme
+  })
+  
   # return result
   out$DRUG <- drug.name
   out$STUDY <- study.name
