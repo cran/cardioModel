@@ -70,29 +70,33 @@ cardioModel <- function(x, ID = "ID", NTAFD = "NTAFD", TOD = "TOD", RESPONSE = "
   myData  <- myPremodeling(myData)
   
   # workaround for bug in nlme
-  extra_e = environment()
-  with(extra_e, {
+  my_base <- baseenv()
+  my_base$.my.intercept.fun <- .my.intercept.fun
+  my_base$.my.cosine24.fun <- .my.cosine24.fun
+  my_base$.my.cosine12.fun <- .my.cosine12.fun
+  my_base$.my.dcosine.fun <- .my.dcosine.fun
+  my_base$.my.intercept.meal.fun <- .my.intercept.meal.fun
+  my_base$.my.slope.fun <- .my.slope.fun
+  my_base$.my.Emax.fun <- .my.Emax.fun
+  my_base$.my.sigEmax.fun <- .my.sigEmax.fun
   
-    # no BOV
-    results10 <- myModeling10(myData, AIC.k)
-    results11 <- myModeling11(myData, AIC.k)
-    results12 <- myModeling12(myData, AIC.k)
-    results13 <- myModeling13(myData, AIC.k)
-    
-    if("PERIOD" %in% colnames(myData)){
-      # with BOV
-      results14 <- myModeling14(myData, AIC.k)
-      results15 <- myModeling15(myData, AIC.k)
-      results16 <- myModeling16(myData, AIC.k)
-      results17 <- myModeling17(myData, AIC.k)
-      out <- mySummary(results=list(results10, results11, results12, results13,
-                                    results14, results15, results16, results17))
-    } else {
-      out <- mySummary(results=list(results10, results11, results12, results13))
-    }
-    
-  # workaround for bug in nlme
-  })
+  # no BOV
+  results10 <- myModeling10(myData, AIC.k)
+  results11 <- myModeling11(myData, AIC.k)
+  results12 <- myModeling12(myData, AIC.k)
+  results13 <- myModeling13(myData, AIC.k)
+  
+  if("PERIOD" %in% colnames(myData)){
+    # with BOV
+    results14 <- myModeling14(myData, AIC.k)
+    results15 <- myModeling15(myData, AIC.k)
+    results16 <- myModeling16(myData, AIC.k)
+    results17 <- myModeling17(myData, AIC.k)
+    out <- mySummary(results=list(results10, results11, results12, results13,
+                                  results14, results15, results16, results17))
+  } else {
+    out <- mySummary(results=list(results10, results11, results12, results13))
+  }
   
   # return result
   out$DRUG <- drug.name
