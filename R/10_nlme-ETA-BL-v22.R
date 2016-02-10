@@ -2,7 +2,7 @@
 ###################ETAs IN BASELINE w/o BOV for PERD###############################
 ###################################################################################
 
-myModeling10 <- function(myData, AIC.k){
+myModeling10 <- function(myData, AIC.k, delay.confidence){
 
   i.int <- mean(myData$RESPONSE, na.rm = TRUE)
   i.amp <- sd(myData$RESPONSE, na.rm = TRUE)
@@ -25,7 +25,8 @@ myModeling10 <- function(myData, AIC.k){
 
   try(stop(""),TRUE)
   results.nlme.ETA.BL.noBOV <- data.frame()
-
+  saved.models = list()
+  
   #################Estimated E0############################################
 
   # Mod01-E0+Slope
@@ -44,12 +45,13 @@ myModeling10 <- function(myData, AIC.k){
     tmp$AIC <- AIC(my.nlme, k = AIC.k)
     tmp$SLOPE <- extract.num["value.Slo"]
     tmp$VAR.SLOPE <- extract.num["cov.Slo.Slo"]
-    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme)
+    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme, delay.confidence)
+    saved.models[[tmp$MODEL]] = my.nlme
   }, silent = T))
   tmp$ERROR.MESSAGE <- geterrmessage()
   try(stop(""),TRUE)
   results.nlme.ETA.BL.noBOV <- rbind(results.nlme.ETA.BL.noBOV, tmp)
-
+  
   #Mod02-E0+Emax
   tmp <- dfEmpty
   tmp$MODEL <- "02, model = e0 + emax, bsv = e0"
@@ -69,7 +71,8 @@ myModeling10 <- function(myData, AIC.k){
     tmp$VAR.EMAX <- extract.num["cov.Emax.Emax"]
     tmp$VAR.EC50 <- extract.num["cov.EC50.EC50"]
     tmp$COV.EMAX.EC50 <- extract.num["cov.Emax.EC50"]
-    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme)
+    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme, delay.confidence)
+    saved.models[[tmp$MODEL]] = my.nlme
   }, silent = T))
   tmp$ERROR.MESSAGE <- geterrmessage()
   try(stop(""),TRUE)
@@ -98,7 +101,8 @@ myModeling10 <- function(myData, AIC.k){
     tmp$COV.EMAX.EC50 <- extract.num["cov.Emax.EC50"]
     tmp$COV.EMAX.HILL <- extract.num["cov.Emax.Hill"]
     tmp$COV.EC50.HILL <- extract.num["cov.EC50.Hill"]
-    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme)
+    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme, delay.confidence)
+    saved.models[[tmp$MODEL]] = my.nlme
   }, silent = T))
   tmp$ERROR.MESSAGE <- geterrmessage()
   try(stop(""),TRUE)
@@ -108,7 +112,7 @@ myModeling10 <- function(myData, AIC.k){
 
   #Mod04-E0/fNTAFD+Slope
   tmp <- dfEmpty
-  tmp$MODEL <- "04, model = e0~fNTAFD + slope, bsv = e0~fNTAFD"
+  tmp$MODEL <- "04, model = e0~fNTAFD + slope, bsv = e0"
   suppressWarnings(try({
     my.nlme <- nlme(RESPONSE~.my.intercept.fun(Int)+.my.slope.fun(Slo, Conc=EXPOSURE),
                     data=myData,
@@ -122,7 +126,8 @@ myModeling10 <- function(myData, AIC.k){
     tmp$AIC <- AIC(my.nlme, k = AIC.k)
     tmp$SLOPE <- extract.num["value.Slo"]
     tmp$VAR.SLOPE <- extract.num["cov.Slo.Slo"]
-    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme)
+    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme, delay.confidence)
+    saved.models[[tmp$MODEL]] = my.nlme
   }, silent = T))
   tmp$ERROR.MESSAGE <- geterrmessage()
   try(stop(""),TRUE)
@@ -130,7 +135,7 @@ myModeling10 <- function(myData, AIC.k){
 
   #Mod05-E0/fNTAFD+Emax
   tmp <- dfEmpty
-  tmp$MODEL <- "05, model = e0~fNTAFD + emax, bsv = e0~fNTAFD"
+  tmp$MODEL <- "05, model = e0~fNTAFD + emax, bsv = e0"
   suppressWarnings(try({
     my.nlme <- nlme(RESPONSE~.my.intercept.fun(Int)+.my.Emax.fun(Emax, EC50, Conc=EXPOSURE),
                     data=myData,
@@ -147,7 +152,8 @@ myModeling10 <- function(myData, AIC.k){
     tmp$VAR.EMAX <- extract.num["cov.Emax.Emax"]
     tmp$VAR.EC50 <- extract.num["cov.EC50.EC50"]
     tmp$COV.EMAX.EC50 <- extract.num["cov.Emax.EC50"]
-    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme)
+    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme, delay.confidence)
+    saved.models[[tmp$MODEL]] = my.nlme
   }, silent = T))
   tmp$ERROR.MESSAGE <- geterrmessage()
   try(stop(""),TRUE)
@@ -155,7 +161,7 @@ myModeling10 <- function(myData, AIC.k){
 
   #Mod06-E0/fNTAFD+SigEmax
   tmp <- dfEmpty
-  tmp$MODEL <- "06, model = e0~fNTAFD + sigmoidal emax, bsv = e0~fNTAFD"
+  tmp$MODEL <- "06, model = e0~fNTAFD + sigmoidal emax, bsv = e0"
   suppressWarnings(try({
     my.nlme <- nlme(RESPONSE~.my.intercept.fun(Int)+.my.sigEmax.fun(Emax, EC50, Hill, Conc=EXPOSURE),
                     data=myData,
@@ -176,7 +182,8 @@ myModeling10 <- function(myData, AIC.k){
     tmp$COV.EMAX.EC50 <- extract.num["cov.Emax.EC50"]
     tmp$COV.EMAX.HILL <- extract.num["cov.Emax.Hill"]
     tmp$COV.EC50.HILL <- extract.num["cov.EC50.Hill"]
-    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme)
+    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme, delay.confidence)
+    saved.models[[tmp$MODEL]] = my.nlme
   }, silent = T))
   tmp$ERROR.MESSAGE <- geterrmessage()
   try(stop(""),TRUE)
@@ -201,7 +208,8 @@ myModeling10 <- function(myData, AIC.k){
     tmp$AIC <- AIC(my.nlme, k = AIC.k)
     tmp$SLOPE <- extract.num["value.Slo"]
     tmp$VAR.SLOPE <- extract.num["cov.Slo.Slo"]
-    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme)
+    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme, delay.confidence)
+    saved.models[[tmp$MODEL]] = my.nlme
   }, silent = T))
   tmp$ERROR.MESSAGE <- geterrmessage()
   try(stop(""),TRUE)
@@ -228,7 +236,8 @@ myModeling10 <- function(myData, AIC.k){
     tmp$VAR.EMAX <- extract.num["cov.Emax.Emax"]
     tmp$VAR.EC50 <- extract.num["cov.EC50.EC50"]
     tmp$COV.EMAX.EC50 <- extract.num["cov.Emax.EC50"]
-    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme)
+    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme, delay.confidence)
+    saved.models[[tmp$MODEL]] = my.nlme
   }, silent = T))
   tmp$ERROR.MESSAGE <- geterrmessage()
   try(stop(""),TRUE)
@@ -259,7 +268,8 @@ myModeling10 <- function(myData, AIC.k){
     tmp$COV.EMAX.EC50 <- extract.num["cov.Emax.EC50"]
     tmp$COV.EMAX.HILL <- extract.num["cov.Emax.Hill"]
     tmp$COV.EC50.HILL <- extract.num["cov.EC50.Hill"]
-    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme)
+    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme, delay.confidence)
+    saved.models[[tmp$MODEL]] = my.nlme
   }, silent = T))
   tmp$ERROR.MESSAGE <- geterrmessage()
   try(stop(""),TRUE)
@@ -284,7 +294,8 @@ myModeling10 <- function(myData, AIC.k){
     tmp$AIC <- AIC(my.nlme, k = AIC.k)
     tmp$SLOPE <- extract.num["value.Slo"]
     tmp$VAR.SLOPE <- extract.num["cov.Slo.Slo"]
-    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme)
+    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme, delay.confidence)
+    saved.models[[tmp$MODEL]] = my.nlme
   }, silent = T))
   tmp$ERROR.MESSAGE <- geterrmessage()
   try(stop(""),TRUE)
@@ -310,7 +321,8 @@ myModeling10 <- function(myData, AIC.k){
     tmp$VAR.EMAX <- extract.num["cov.Emax.Emax"]
     tmp$VAR.EC50 <- extract.num["cov.EC50.EC50"]
     tmp$COV.EMAX.EC50 <- extract.num["cov.Emax.EC50"]
-    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme)
+    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme, delay.confidence)
+    saved.models[[tmp$MODEL]] = my.nlme
   }, silent = T))
   tmp$ERROR.MESSAGE <- geterrmessage()
   try(stop(""),TRUE)
@@ -341,7 +353,8 @@ myModeling10 <- function(myData, AIC.k){
     tmp$COV.EMAX.EC50 <- extract.num["cov.Emax.EC50"]
     tmp$COV.EMAX.HILL <- extract.num["cov.Emax.Hill"]
     tmp$COV.EC50.HILL <- extract.num["cov.EC50.Hill"]
-    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme)
+    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme, delay.confidence)
+    saved.models[[tmp$MODEL]] = my.nlme
   }, silent = T))
   tmp$ERROR.MESSAGE <- geterrmessage()
   try(stop(""),TRUE)
@@ -367,7 +380,8 @@ myModeling10 <- function(myData, AIC.k){
     tmp$AIC <- AIC(my.nlme, k = AIC.k)
     tmp$SLOPE <- extract.num["value.Slo"]
     tmp$VAR.SLOPE <- extract.num["cov.Slo.Slo"]
-    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme)
+    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme, delay.confidence)
+    saved.models[[tmp$MODEL]] = my.nlme
   }, silent = T))
   tmp$ERROR.MESSAGE <- geterrmessage()
   try(stop(""),TRUE)
@@ -394,7 +408,8 @@ myModeling10 <- function(myData, AIC.k){
     tmp$VAR.EMAX <- extract.num["cov.Emax.Emax"]
     tmp$VAR.EC50 <- extract.num["cov.EC50.EC50"]
     tmp$COV.EMAX.EC50 <- extract.num["cov.Emax.EC50"]
-    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme)
+    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme, delay.confidence)
+    saved.models[[tmp$MODEL]] = my.nlme
   }, silent = T))
   tmp$ERROR.MESSAGE <- geterrmessage()
   try(stop(""),TRUE)
@@ -425,7 +440,8 @@ myModeling10 <- function(myData, AIC.k){
     tmp$COV.EMAX.EC50 <- extract.num["cov.Emax.EC50"]
     tmp$COV.EMAX.HILL <- extract.num["cov.Emax.Hill"]
     tmp$COV.EC50.HILL <- extract.num["cov.EC50.Hill"]
-    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme)
+    tmp$DRUG.EFFECT.DELAY <- cder.regression(myData, my.nlme, delay.confidence)
+    saved.models[[tmp$MODEL]] = my.nlme
   }, silent = T))
   tmp$ERROR.MESSAGE <- geterrmessage()
   try(stop(""),TRUE)
@@ -437,5 +453,5 @@ myModeling10 <- function(myData, AIC.k){
     "none"
 
   #Return results
-  return(results.nlme.ETA.BL.noBOV)
+  return(list(results.nlme.ETA.BL.noBOV, saved.models))
 }

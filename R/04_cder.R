@@ -1,4 +1,4 @@
-cder.regression <- function(myData, my.nlme) {
+cder.regression <- function(myData, my.nlme, delay.confidence) {
   regression_parameter <- data.frame()
 
   myResiduals <- data.frame(RES=residuals(my.nlme, type = c("pearson")))
@@ -49,15 +49,15 @@ cder.regression <- function(myData, my.nlme) {
   regression_parameter[1,"SLOPE.CDER"] <- coef(fit)["myOutput.cder$CDER"]
   regression_parameter[1,"VAR.SLOPE.CDER"] <- vcov(fit)["myOutput.cder$CDER","myOutput.cder$CDER"]
 
-  #' lower bound of a 2-side 98% ci is used as the 99 percent lower confidence bound for the slope
-  my.lower.CI <- function (parameter, variance) {
-    parameter-2.326348*(variance^0.5)
+  #' upper bound of a 2-side 98% ci is used as the 99 percent upper confidence bound for the slope
+  my.upper.CI <- function (parameter, variance, delay.confidence) {
+    parameter+qnorm(delay.confidence)*(variance^0.5)
   }
 
-  regression_parameter$lower.bound.99 <-
-    my.lower.CI(regression_parameter$SLOPE.CDER, regression_parameter$VAR.SLOPE.CDER)
+  regression_parameter$upper.bound.99 <-
+    my.upper.CI(regression_parameter$SLOPE.CDER, regression_parameter$VAR.SLOPE.CDER, delay.confidence)
 
-  if (regression_parameter$lower.bound.99>0) {
+  if (regression_parameter$upper.bound.99<0) {
     regression_parameter$Drug.Effect.Delay <- "yes"
   } else {
     regression_parameter$Drug.Effect.Delay <- "no"

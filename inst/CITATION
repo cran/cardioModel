@@ -1,14 +1,14 @@
 year <- sub("-.*", "", meta$Date)
 note <- sprintf("R package version %s", meta$Version)
 bibentry(bibtype = "Manual",
-title = "{cardioModel}: Linear and Nonlinear Mixed Effects Models",
+title = "{cardioModel}: Cardiovascular Safety Exposure-Response Modeling in Early-Phase Clinical Studies",
 author = c(person("Daniela J Conrado"),
 person("Gregory J Hather"),
 person("Danny Chen"),
 person("William S Denney")),
 year = 2015,
 note = note,
-url = "TBD")
+url = "ftp://cran.r-project.org/pub/R/web/packages/cardioModel/index.html")
 
 year <- sub("-.*", "", meta$Date)
 note <- sprintf("R package version %s", meta$Version)
@@ -19,5 +19,5 @@ person("Gregory J Hather"),
 person("Danny Chen"),
 person("William S Denney")),
 year = 2015,
-note = "American Conference of Pharmacometrics (ACoP6)",
-url = "TBD")
+note = "American Conference on Pharmacometrics (ACoP6)",
+url = "http://metrumrg.com/publications/2015/10/04/conradoacop2015.html")
