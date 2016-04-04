@@ -1,6 +1,6 @@
 #' @name cardioModel
 #' @title Cardiovascular safety exposure-response modeling in early-phase clinical studies
-#' @description Includes 100 mixed-effects model structures describing the relationship between drug concentration and QT interval, heart rate/pulse rate or blood pressure. Given an exposure-response dataset, the tool fits each model structure to the observed data.
+#' @description Includes 110 mixed-effects model structures describing the relationship between drug concentration and QT interval, heart rate/pulse rate or blood pressure. Given an exposure-response dataset, the tool fits each model structure to the observed data.
 #' @param x A dataframe with one measure of cardiovascular response (e.g., QT interval, heart rate, pulse rate, blood pressure), one measure of drug exposure (e.g., plasma concentration).
 #'
 #' @param ID The name of the column (in x) containing the subject unique identification number.
@@ -31,7 +31,7 @@
 #' The second element in the list ("models") is a list of nlme objects corresponding to each of the models.  The nlme objects are named with the same names as in the "MODEL" column of "summary" data frame.  The order of the nlme objects is 
 #' the same as in the "summary" data frame. \cr\cr  
 #'
-#' @note A complete description of each model is provided in Conrado et al. listed in the references.  The MODEL column of the output contains only a very brief description of the model.  For each model, the description starts with a number from 1 to 100 to label the model.  Next, the description shows the form of the dose-response relationship.  In addition, the description lists the terms allowed to have between-subject variability (BSV) and between-occasion variability (BOV).  \cr\cr
+#' @note A complete description of each model is provided in Conrado et al. listed in the references.  The MODEL column of the output contains only a very brief description of the model.  For each model, the description starts with a number from 1 to 110 to label the model.  Next, the description shows the form of the dose-response relationship.  Note that models 101 through 110 do not have any drug effect.  In addition, the description lists the terms allowed to have between-subject variability (BSV) and between-occasion variability (BOV).  \cr\cr
 #' Each model is fitted using the the nlme() function.  Thus, any error listed in the ERROR.MESSAGE column originates from the nlme() function or from the subsequent extraction of the fitted parameters. \cr\cr
 #' When fitting the nlme models, the initial parameter estimates are set as follows.
 #' For models with a linear component, the intercept is initially set to the mean of the response for the pooled observations.
@@ -95,6 +95,7 @@ cardioModel <- function(x, ID = "ID", NTAFD = "NTAFD", TOD = "TOD", CLOCK = "CLO
   results11 <- myModeling11(myData, AIC.k, delay.confidence)
   results12 <- myModeling12(myData, AIC.k, delay.confidence)
   results13 <- myModeling13(myData, AIC.k, delay.confidence)
+  results18 <- myModeling18(myData, AIC.k, delay.confidence)
   
   if( ("PERIOD" %in% colnames(myData)) & (length(unique(myData$PERIOD))>1) ){
     # with BOV
@@ -102,10 +103,11 @@ cardioModel <- function(x, ID = "ID", NTAFD = "NTAFD", TOD = "TOD", CLOCK = "CLO
     results15 <- myModeling15(myData, AIC.k, delay.confidence)
     results16 <- myModeling16(myData, AIC.k, delay.confidence)
     results17 <- myModeling17(myData, AIC.k, delay.confidence)
-    out <- mySummary(results=list(results10, results11, results12, results13,
-                                  results14, results15, results16, results17), study.name = study.name, drug.name = drug.name)
+    results19 <- myModeling19(myData, AIC.k, delay.confidence)
+    out <- mySummary(results=list(results10, results11, results12, results13, results18,
+                                  results14, results15, results16, results17, results19), study.name = study.name, drug.name = drug.name)
   } else {
-    out <- mySummary(results=list(results10, results11, results12, results13), study.name = study.name, drug.name = drug.name)
+    out <- mySummary(results=list(results10, results11, results12, results13, results18), study.name = study.name, drug.name = drug.name)
   }
     
   # return result

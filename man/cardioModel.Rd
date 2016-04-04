@@ -53,10 +53,10 @@ The second element in the list ("models") is a list of nlme objects correspondin
 the same as in the "summary" data frame. \cr\cr
 }
 \description{
-Includes 100 mixed-effects model structures describing the relationship between drug concentration and QT interval, heart rate/pulse rate or blood pressure. Given an exposure-response dataset, the tool fits each model structure to the observed data.
+Includes 110 mixed-effects model structures describing the relationship between drug concentration and QT interval, heart rate/pulse rate or blood pressure. Given an exposure-response dataset, the tool fits each model structure to the observed data.
 }
 \note{
-A complete description of each model is provided in Conrado et al. listed in the references.  The MODEL column of the output contains only a very brief description of the model.  For each model, the description starts with a number from 1 to 100 to label the model.  Next, the description shows the form of the dose-response relationship.  In addition, the description lists the terms allowed to have between-subject variability (BSV) and between-occasion variability (BOV).  \cr\cr
+A complete description of each model is provided in Conrado et al. listed in the references.  The MODEL column of the output contains only a very brief description of the model.  For each model, the description starts with a number from 1 to 110 to label the model.  Next, the description shows the form of the dose-response relationship.  Note that models 101 through 110 do not have any drug effect.  In addition, the description lists the terms allowed to have between-subject variability (BSV) and between-occasion variability (BOV).  \cr\cr
 Each model is fitted using the the nlme() function.  Thus, any error listed in the ERROR.MESSAGE column originates from the nlme() function or from the subsequent extraction of the fitted parameters. \cr\cr
 When fitting the nlme models, the initial parameter estimates are set as follows.
 For models with a linear component, the intercept is initially set to the mean of the response for the pooled observations.
